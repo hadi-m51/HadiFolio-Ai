@@ -1,0 +1,19 @@
+[package]
+name = "2018sohadi/hadifoliolaws"
+version = "0.1.0"
+description = "Description for package hadifoliolaws"
+
+# See more keys and definitions at https://docs.wasmer.io/registry/manifest
+
+[[module]]
+name = "hadifoliolaws"
+source = "hadifoliolaws.wasm"
+abi = "wasi"
+
+[module.interfaces]
+wasi = "0.1.0-unstable"
+
+[[command]]
+name = "hadifoliolaws"
+module = "hadifoliolaws"
+runner = "wasi"
