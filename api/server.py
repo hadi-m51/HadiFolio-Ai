@@ -153,17 +153,6 @@ def call_gemini(prompt: str) -> str:
         return f"حدث خطأ أثناء الاتصال بالذكاء الاصطناعي: {str(e)}"
 
 
-# ── Static File Serving ──
-
-@app.route('/')
-def serve_index():
-    return send_from_directory('..', 'index.html')
-
-
-@app.route('/<path:path>')
-def serve_static(path):
-    return send_from_directory('..', path)
-
 
 # ── API Routes ──
 
@@ -541,6 +530,18 @@ def health():
         "vectors": len(articles),
         "index": "local_extracted_laws"
     })
+
+
+# ── Static File Serving (Must be at the bottom) ──
+
+@app.route('/')
+def serve_index():
+    return send_from_directory('..', 'index.html')
+
+
+@app.route('/<path:path>')
+def serve_static(path):
+    return send_from_directory('..', path)
 
 
 # ── Run Server ──
