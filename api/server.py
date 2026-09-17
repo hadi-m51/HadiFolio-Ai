@@ -11,7 +11,8 @@ import json
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
-from sentence_transformers import SentenceTransformer
+# Removed sentence_transformers to save RAM on Render (512MB limit)
+# from sentence_transformers import SentenceTransformer
 import requests
 import numpy as np
 
@@ -32,9 +33,22 @@ if not GEMINI_API_KEY:
 app = Flask(__name__, static_folder='..', static_url_path='')
 CORS(app)
 
-print("[*] Loading embedding model...")
-embed_model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
-print("[OK] Embedding model loaded")
+print("[*] Using Hugging Face Inference API for embeddings (RAM Optimization)...")
+# embed_model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+# print("[OK] Embedding model loaded")
+
+def encode_query(query: str):
+    api_url = "https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    try:
+        response = requests.post(api_url, json={"inputs": [query]}, timeout=15)
+        if response.status_code == 200:
+            return np.array(response.json()[0])
+        else:
+            print("[ERROR] HF API Error:", response.text)
+            return np.zeros(384)
+    except Exception as e:
+        print(f"[ERROR] HF API Request failed: {e}")
+        return np.zeros(384)
 
 # ── Load Local JSON and Embeddings ──
 extracted_laws_path = os.path.join(os.path.dirname(__file__), '..', 'extracted_laws.json')
@@ -78,11 +92,11 @@ if os.path.exists(embeddings_path):
     article_embeddings = np.load(embeddings_path)
     print("[OK] Embeddings loaded.")
 else:
-    print(f"[*] Computing embeddings for {len(articles)} articles (this may take a few minutes)...")
-    texts_to_encode = [a['text'] for a in articles]
-    article_embeddings = embed_model.encode(texts_to_encode)
+    print(f"[*] WARNING: embeddings.npy not found! Please upload it to your server.")
+    print(f"[*] Cannot compute embeddings for {len(articles)} articles locally due to RAM limits.")
+    article_embeddings = np.zeros((len(articles), 384))
     np.save(embeddings_path, article_embeddings)
-    print("[OK] Embeddings computed and saved.")
+    print("[OK] Dummy embeddings computed and saved.")
 
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key={GEMINI_API_KEY}"
 
@@ -90,7 +104,7 @@ GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.
 
 def search_local(query: str, top_k: int = 5, law_filter: str = None) -> list:
     """Search local articles using cosine similarity."""
-    query_vec = embed_model.encode(query)
+    query_vec = encode_query(query)
     
     # Cosine similarity calculation
     scores = np.dot(article_embeddings, query_vec) / (np.linalg.norm(article_embeddings, axis=1) * np.linalg.norm(query_vec) + 1e-9)
