@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>حاسبة المدد النظامية — HadiFolio-Ai</title>
+  <meta name="description" content="اعرف المدة النظامية لأي إجراء قانوني مع المادة المرجعية في الأنظمة السعودية.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="images/logo.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="images/logo.svg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="bg-pattern"></div>
+
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <img src="images/logo.svg" alt="HadiFolio-Ai" class="logo-img">
+        <span>HadiFolio-Ai</span>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">الرئيسية</a></li>
+        <li><a href="chat.html">الاستشارة</a></li>
+        <li><a href="browse.html">الأنظمة</a></li>
+        <li><a href="court-finder.html">المحكمة</a></li>
+        <li><a href="deadlines.html" class="active">المدد</a></li>
+        <li><a href="quiz.html">اختبار</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <a href="login.html" class="nav-login-btn" title="تسجيل الدخول">
+          <i class="fa-regular fa-user"></i>
+        </a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="فتح القائمة">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <div class="page-icon"><i class="fa-solid fa-stopwatch"></i></div>
+    <h1>حاسبة المدد النظامية</h1>
+    <p>ابحث عن المدد والمواعيد النظامية لأي إجراء قانوني</p>
+  </div>
+
+  <div class="container" style="padding-top: var(--space-10); padding-bottom: var(--space-16);">
+    <div style="max-width: 800px; margin: 0 auto;">
+
+
+      <div class="glass-card" style="margin-bottom: 20px;">
+        <div class="form-group">
+          <label class="form-label">فلترة حسب النظام:</label>
+          <select id="filterSystem" class="form-select" onchange="renderDeadlines()">
+            <option value="">جميع الأنظمة</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="resultsContainer" style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="flex-center"><div class="loading-spinner"></div><span style="margin-right:12px">جاري تحميل المدد...</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <p><span class="footer-brand"><i class="fa-solid fa-scale-balanced"></i> HadiFolio-Ai</span> — مساعد أكاديمي قانوني سعودي</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    let globalDeadlines = [];
+
+    async function loadData() {
+      try {
+        const resp = await fetch('http://localhost:5000/api/custom_data');
+        const data = await resp.json();
+        
+        globalDeadlines = data.deadlines || [];
+
+        // Populate System Filter
+        const systems = [...new Set(globalDeadlines.map(d => d['النظام']).filter(Boolean))];
+        const sysSelect = document.getElementById('filterSystem');
+        sysSelect.innerHTML = '<option value="">جميع الأنظمة</option>' + 
+          systems.map(s => `<option value="${s}">${s}</option>`).join('');
+
+        renderDeadlines();
+      } catch (err) {
+        document.getElementById('resultsContainer').innerHTML = `<div class="result-card"><p><i class="fa-solid fa-triangle-exclamation"></i> تعذر تحميل البيانات: ${err.message}</p></div>`;
+      }
+    }
+
+    function renderDeadlines() {
+      const container = document.getElementById('resultsContainer');
+      const selectedSystem = document.getElementById('filterSystem').value;
+      
+      let html = '';
+
+      let filteredDeadlines = globalDeadlines;
+      if (selectedSystem) {
+        filteredDeadlines = filteredDeadlines.filter(d => d['النظام'] === selectedSystem);
+      }
+      
+      if (filteredDeadlines.length > 0) {
+        html += filteredDeadlines.map(d => `
+          <div class="result-card">
+            <div class="result-header">
+              <div class="result-icon" style="background:rgba(16,185,129,0.15);color:var(--emerald-400)"><i class="fa-solid fa-stopwatch"></i></div>
+              <div style="flex: 1;">
+                <div class="result-title" style="font-size: 1.1rem; color: var(--emerald-400); margin-bottom: 5px;">${d['المدة'] || 'مدة غير محددة'}</div>
+                <div class="result-source" style="font-size: 0.85rem; opacity: 0.8;">${d['النظام'] || 'نظام غير محدد'}</div>
+              </div>
+            </div>
+            <div class="result-text" style="font-size: 0.95rem; margin-top: 10px; line-height: 1.6;">${d['المادة']}</div>
+          </div>
+        `).join('');
+      } else {
+        html = '<div class="empty-state">لا توجد مدد مطابقة للبحث.</div>';
+      }
+
+      container.innerHTML = html;
+    }
+
+    document.addEventListener('DOMContentLoaded', loadData);
+  </script>
+</body>
+</html>

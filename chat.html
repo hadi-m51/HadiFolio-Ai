@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الاستشارة القانونية الذكية — HadiFolio-Ai</title>
+  <meta name="description" content="اطرح سؤالك القانوني واحصل على إجابة مدعومة بالمواد النظامية السعودية عبر الذكاء الاصطناعي.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="images/logo.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="images/logo.svg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="bg-pattern"></div>
+
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <img src="images/logo.svg" alt="HadiFolio-Ai" class="logo-img">
+        <span>HadiFolio-Ai</span>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">الرئيسية</a></li>
+        <li><a href="chat.html" class="active">الاستشارة</a></li>
+        <li><a href="browse.html">الأنظمة</a></li>
+        <li><a href="court-finder.html">المحكمة</a></li>
+        <li><a href="deadlines.html">المدد</a></li>
+        <li><a href="quiz.html">اختبار</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <a href="login.html" class="nav-login-btn" title="تسجيل الدخول">
+          <i class="fa-regular fa-user"></i>
+        </a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="فتح القائمة">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-icon"><i class="fa-solid fa-comments"></i></div>
+    <h1>الاستشارة القانونية الذكية</h1>
+    <p>اطرح سؤالك القانوني واحصل على إجابة مدعومة بالمواد النظامية</p>
+  </div>
+
+  <!-- Chat Interface -->
+  <div class="chat-container">
+    <div class="glass-card" style="padding: 0; overflow: hidden;">
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-bubble bot">
+          مرحباً بك في المساعد القانوني الذكي! <i class="fa-regular fa-hand"></i><br><br>
+          يمكنك سؤالي عن أي موضوع قانوني في الأنظمة السعودية، مثل:<br>
+          • ما هي شروط رفع الدعوى أمام المحكمة العامة؟<br>
+          • ما مدة الاعتراض على الحكم؟<br>
+          • ما هي أركان عقد البيع في نظام المعاملات المدنية؟<br>
+          • ما هي حقوق المتهم في نظام الإجراءات الجزائية؟
+        </div>
+      </div>
+      <form id="chatForm" class="chat-input-container">
+        <input type="text" id="chatInput" class="chat-input" placeholder="اكتب سؤالك القانوني هنا..." autocomplete="off">
+        <button type="submit" id="chatSendBtn" class="chat-send-btn" title="إرسال"><i class="fa-solid fa-paper-plane"></i></button>
+      </form>
+    </div>
+
+    <div style="text-align:center; margin-top: 16px;">
+      <p class="text-muted" style="font-size: 0.8rem;">
+        <i class="fa-solid fa-lightbulb"></i> جميع الإجابات مستندة إلى الأنظمة السعودية الرسمية ولأغراض أكاديمية فقط
+      </p>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <p><span class="footer-brand"><i class="fa-solid fa-scale-balanced"></i> HadiFolio-Ai</span> — مساعد أكاديمي قانوني سعودي</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

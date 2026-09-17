@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تصفح الأنظمة — HadiFolio-Ai</title>
+  <meta name="description" content="تصفح وابحث في الأنظمة السعودية: نظام الإثبات، المرافعات الشرعية، الإجراءات الجزائية، المعاملات المدنية، والأحوال الشخصية.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="images/logo.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="images/logo.svg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="bg-pattern"></div>
+
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <img src="images/logo.svg" alt="HadiFolio-Ai" class="logo-img">
+        <span>HadiFolio-Ai</span>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">الرئيسية</a></li>
+        <li><a href="chat.html">الاستشارة</a></li>
+        <li><a href="browse.html" class="active">الأنظمة</a></li>
+        <li><a href="court-finder.html">المحكمة</a></li>
+        <li><a href="deadlines.html">المدد</a></li>
+        <li><a href="quiz.html">اختبار</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <a href="login.html" class="nav-login-btn" title="تسجيل الدخول">
+          <i class="fa-regular fa-user"></i>
+        </a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="فتح القائمة">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <div class="page-icon"><i class="fa-solid fa-book-bookmark"></i></div>
+    <h1>تصفح الأنظمة</h1>
+    <p>استعرض الأنظمة السعودية وابحث داخل محتواها</p>
+  </div>
+
+  <div class="container" style="padding-top: var(--space-10); padding-bottom: var(--space-16);">
+    <div style="max-width: 900px; margin: 0 auto;">
+      <form id="browseForm" class="glass-card">
+        <div class="form-group">
+          <label class="form-label">اختر النظام</label>
+          <select id="browseLaw" class="form-select">
+            <option value="">جميع الأنظمة</option>
+            <option value="نظام الأحوال الشخصية">نظام الأحوال الشخصية</option>
+            <option value="نظام الإثبات">نظام الإثبات</option>
+            <option value="نظام المرافعات الشرعية">نظام المرافعات الشرعية</option>
+            <option value="نظام المرافعات أمام ديوان المظالم">نظام المرافعات أمام ديوان المظالم</option>
+            <option value="نظام الشركات">نظام الشركات</option>
+            <option value="اللائحة التنفيذية لنظام التنفيذ">اللائحة التنفيذية لنظام التنفيذ</option>
+            <option value="اللائحة التنفيذية لنظام المرافعات أمام ديوان المظالم">اللائحة التنفيذية لنظام المرافعات أمام ديوان المظالم</option>
+            <option value="نظام التحكيم">نظام التحكيم</option>
+            <option value="نظام المحاكم التجارية">نظام المحاكم التجارية</option>
+            <option value="المدد النظامية">المدد النظامية</option>
+            <option value="تصنيفات الدعاوى في ناجز">تصنيفات الدعاوى في ناجز</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">ابحث عن (اختياري)</label>
+          <input type="text" id="browseSearch" class="form-input" placeholder="مثال: المادة الخامسة، عقد البيع، الشهادة...">
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+          <i class="fa-solid fa-magnifying-glass"></i> بحث
+        </button>
+      </form>
+
+      <div id="browseResult" style="margin-top: var(--space-6);"></div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <p><span class="footer-brand"><i class="fa-solid fa-scale-balanced"></i> HadiFolio-Ai</span> — مساعد أكاديمي قانوني سعودي</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

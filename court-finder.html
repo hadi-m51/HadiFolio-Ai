@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تحديد المحكمة المختصة — HadiFolio-Ai</title>
+  <meta name="description" content="حدد المحكمة المختصة بنظر قضيتك بناءً على الأنظمة السعودية ودليل الاختصاص القضائي.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="images/logo.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="images/logo.svg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="bg-pattern"></div>
+
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <img src="images/logo.svg" alt="HadiFolio-Ai" class="logo-img">
+        <span>HadiFolio-Ai</span>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">الرئيسية</a></li>
+        <li><a href="chat.html">الاستشارة</a></li>
+        <li><a href="browse.html">الأنظمة</a></li>
+        <li><a href="court-finder.html" class="active">المحكمة</a></li>
+        <li><a href="deadlines.html">المدد</a></li>
+        <li><a href="quiz.html">اختبار</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <a href="login.html" class="nav-login-btn" title="تسجيل الدخول">
+          <i class="fa-regular fa-user"></i>
+        </a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="فتح القائمة">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <div class="page-icon"><i class="fa-solid fa-landmark"></i></div>
+    <h1>تحديد المحكمة المختصة</h1>
+    <p>صِف قضيتك وسنحدد لك المحكمة والدائرة المختصة بنظرها</p>
+  </div>
+
+  <div class="container" style="padding-top: var(--space-10); padding-bottom: var(--space-16);">
+    <div style="max-width: 800px; margin: 0 auto;">
+      <form id="courtForm" class="glass-card">
+        <div class="form-group">
+          <label class="form-label">وصف القضية</label>
+          <textarea id="courtDescription" class="form-textarea" rows="5" placeholder="مثال: لدي نزاع مع شركة حول عقد توريد بضائع ولم تلتزم بالتسليم في الموعد المحدد..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+          <i class="fa-solid fa-landmark"></i> تحديد المحكمة المختصة
+        </button>
+      </form>
+
+      <div id="courtResult" style="margin-top: var(--space-6);"></div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <p><span class="footer-brand"><i class="fa-solid fa-scale-balanced"></i> HadiFolio-Ai</span> — مساعد أكاديمي قانوني سعودي</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

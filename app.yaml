@@ -1,0 +1,4 @@
+name: HadiFolio-Ai
+owner: 2018sohadi
+package: .
+kind: wasmer.io/App.v0

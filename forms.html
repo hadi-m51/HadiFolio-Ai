@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نماذج الدعاوى — HadiFolio-Ai</title>
+  <meta name="description" content="نماذج الدعاوى الجاهزة للطباعة، قم بتعبئة بياناتك واطبع نموذج دعوى عمالية متكامل.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="images/logo.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="images/logo.svg">
+  <style>
+    /* Print specific styles for the generated PDF */
+    @media print {
+      @page {
+        size: landscape;
+        margin: 10mm;
+      }
+      body * {
+        visibility: hidden;
+      }
+      #printArea, #printArea * {
+        visibility: visible;
+      }
+      #printArea {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        font-family: 'Arial', sans-serif;
+        background: #fff;
+        color: #000;
+        direction: rtl;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-header {
+        text-align: center;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #000;
+        padding-bottom: 10px;
+      }
+      .print-header h1 {
+        font-size: 20px;
+        margin-bottom: 5px;
+      }
+      .print-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+      .print-table th, .print-table td {
+        border: 1px solid #000;
+        padding: 4px;
+        text-align: center;
+        font-size: 10px;
+      }
+      .print-table th {
+        background-color: #f2f2f2 !important; /* using !important for print to force background */
+        -webkit-print-color-adjust: exact; 
+        font-weight: bold;
+      }
+      /* Hide standard page elements */
+      .navbar, .footer, .bg-pattern, .page-header {
+        display: none !important;
+      }
+    }
+    
+    /* Interactive UI Styles */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    @media (max-width: 768px) {
+      .form-grid { grid-template-columns: 1fr; }
+    }
+    .optional-badge {
+      font-size: 0.75rem;
+      background: var(--slate-700);
+      color: var(--slate-300);
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-right: 8px;
+    }
+    .section-divider {
+      margin: 25px 0 15px 0;
+      border-bottom: 1px solid var(--slate-700);
+      padding-bottom: 10px;
+      color: var(--gold-400);
+      font-weight: 600;
+    }
+    #printArea {
+      display: none; /* hidden on screen, visible on print */
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="bg-pattern no-print"></div>
+
+  <nav class="navbar no-print" id="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <img src="images/logo.svg" alt="HadiFolio-Ai" class="logo-img">
+        <span>HadiFolio-Ai</span>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">الرئيسية</a></li>
+        <li><a href="chat.html">الاستشارة</a></li>
+        <li><a href="browse.html">الأنظمة</a></li>
+        <li><a href="court-finder.html">المحكمة</a></li>
+        <li><a href="deadlines.html">المدد</a></li>
+        <li><a href="forms.html" class="active">النماذج</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <a href="login.html" class="nav-login-btn" title="تسجيل الدخول">
+          <i class="fa-regular fa-user"></i>
+        </a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="فتح القائمة">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="page-header no-print">
+    <div class="page-icon"><i class="fa-regular fa-file-lines"></i></div>
+    <h1>نماذج المطالبات العمالية</h1>
+    <p>قم بتعبئة البيانات لإنشاء نموذج مطالبة جاهز للطباعة والتقديم</p>
+  </div>
+
+  <div class="container no-print" style="padding-top: var(--space-10); padding-bottom: var(--space-16);">
+    <div class="glass-card" style="max-width: 900px; margin: 0 auto;">
+      <h2 style="margin-bottom: 20px; color: var(--gold-400); text-align: center;">نموذج مطالبة عمالية</h2>
+      <p style="text-align: center; color: var(--slate-300); margin-bottom: 30px;">أدخل بيانات القضية وسنقوم بإنشاء نموذج مطالبة جاهز للطباعة بجدول تفصيلي</p>
+      
+      <form id="laborForm">
+        
+        <div class="section-divider">المعلومات الأساسية للمدعي والمدعى عليه</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">الاسم (المدعي)</label>
+            <input type="text" id="f_name" class="form-input" required placeholder="الاسم الرباعي">
+          </div>
+          <div class="form-group">
+            <label class="form-label">رقم الهوية</label>
+            <input type="text" id="f_id" class="form-input" required placeholder="رقم الهوية الوطنية / الإقامة">
+          </div>
+          <div class="form-group">
+            <label class="form-label">رقم الوكالة</label>
+            <input type="text" id="f_poa" class="form-input" placeholder="إن وجد">
+          </div>
+          <div class="form-group">
+            <label class="form-label">رقم القضية</label>
+            <input type="text" id="f_case_number" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">جهة العمل (المدعى عليها)</label>
+            <input type="text" id="f_employer" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">السجل التجاري</label>
+            <input type="text" id="f_cr" class="form-input" required>
+          </div>
+        </div>
+
+        <div class="section-divider">بيانات العمل والعلاقة العمالية</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">بداية العمل</label>
+            <input type="date" id="f_start_date" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">نهاية العمل</label>
+            <input type="date" id="f_end_date" class="form-input" required>
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label class="form-label">سبب انتهاء العلاقة العمالية <span class="optional-badge">اختياري</span></label>
+            <input type="text" id="f_reason" class="form-input" placeholder="مثال: استقالة، فصل تعسفي، انتهاء العقد...">
+          </div>
+        </div>
+
+        <div class="section-divider">المطالبات المالية</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">الراتب الأساسي (ريال)</label>
+            <input type="number" id="f_basic_salary" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">الأجر الفعلي (ريال) <span class="optional-badge">اختياري</span></label>
+            <input type="number" id="f_actual_salary" class="form-input" placeholder="شاملاً البدلات">
+          </div>
+          <div class="form-group">
+            <label class="form-label">الرواتب المتأخرة (ريال)</label>
+            <input type="number" id="f_delayed" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">بدل الإجازة (ريال)</label>
+            <input type="number" id="f_vacation" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">مكافأة نهاية الخدمة (ريال)</label>
+            <input type="number" id="f_eos" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">الساعات الإضافية (ريال)</label>
+            <input type="number" id="f_overtime" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">النسبة من الدخل (%)</label>
+            <input type="number" id="f_commission" class="form-input" required placeholder="إذا كان يوجد نسبة متفق عليها">
+          </div>
+        </div>
+
+        <div class="section-divider">بيانات إضافية (للمقيمين / الأجانب)</div>
+        <div class="form-group" style="margin-bottom: 15px;">
+          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+            <input type="checkbox" id="f_is_foreigner" onchange="toggleForeignerFields()" style="width: 20px; height: 20px;">
+            <strong>المدعي عامل غير سعودي (مقيم)</strong>
+          </label>
+        </div>
+
+        <div id="foreignerFields" style="display: none; background: rgba(0,0,0,0.1); padding: 15px; border-radius: 8px;">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">المسمى الوظيفي <span class="optional-badge">اختياري</span></label>
+              <input type="text" id="f_job_title" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">هل العامل على الكفالة؟ <span class="optional-badge">اختياري</span></label>
+              <select id="f_sponsorship" class="form-select">
+                <option value="">- اختر -</option>
+                <option value="نعم">نعم</option>
+                <option value="لا">لا</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">هل إقامته سارية؟ <span class="optional-badge">اختياري</span></label>
+              <select id="f_iqama" class="form-select">
+                <option value="">- اختر -</option>
+                <option value="نعم">نعم</option>
+                <option value="لا">لا</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">هل يرغب بالخروج النهائي لطلب تذكرة؟ <span class="optional-badge">اختياري</span></label>
+              <select id="f_ticket" class="form-select">
+                <option value="">- اختر -</option>
+                <option value="نعم">نعم</option>
+                <option value="لا">لا</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 30px;" onclick="addClaim()">
+          <i class="fa-solid fa-plus"></i> إضافة للمطالبة الجماعية
+        </button>
+      </form>
+    </div>
+
+    <div id="claimsListSection" class="glass-card" style="max-width: 900px; margin: 30px auto 0; display: none;">
+      <h2 style="margin-bottom: 20px; color: var(--emerald-400);">المطالبات المضافة</h2>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: right;">
+          <thead>
+            <tr style="border-bottom: 2px solid var(--slate-700);">
+              <th style="padding: 10px;">الاسم</th>
+              <th style="padding: 10px;">الهوية</th>
+              <th style="padding: 10px;">رقم القضية</th>
+              <th style="padding: 10px;">إجراء</th>
+            </tr>
+          </thead>
+          <tbody id="claimsListBody">
+            <!-- claims will be injected here -->
+          </tbody>
+        </table>
+      </div>
+      <button type="button" class="btn btn-emerald btn-lg" style="width: 100%; margin-top: 20px; background-color: var(--emerald-600); color: white;" onclick="generateAndPrintAll()">
+        <i class="fa-solid fa-print"></i> طباعة الجدول الكامل (PDF)
+      </button>
+    </div>
+  </div>
+
+  <!-- Hidden Print Area -->
+  <div id="printArea">
+    <div class="print-header">
+      <h1>نموذج مطالبة عمالية</h1>
+      <p>جدول تفصيلي للمطالبات</p>
+    </div>
+    
+    <table class="print-table" id="printFullTable">
+      <thead>
+        <tr>
+          <th>م</th>
+          <th>الاسم</th>
+          <th>الهوية</th>
+          <th>الوكالة</th>
+          <th>جهة العمل / السجل</th>
+          <th>رقم القضية</th>
+          <th>المدة (من - إلى)</th>
+          <th>الراتب / الفعلي</th>
+          <th>رواتب متأخرة</th>
+          <th>بدل الإجازة</th>
+          <th>نهاية الخدمة</th>
+          <th>إضافي / نسبة</th>
+          <th>بيانات المقيم</th>
+          <th>السبب</th>
+        </tr>
+      </thead>
+      <tbody id="printTableBody">
+        <!-- Rows injected here -->
+      </tbody>
+    </table>
+
+    <div style="margin-top: 50px; display: flex; justify-content: space-between;">
+      <div style="text-align: center; width: 40%;">
+        <strong>توقيع ممثل المطالبة / الوكيل</strong>
+        <p style="margin-top: 30px;">.......................................</p>
+      </div>
+      <div style="text-align: center; width: 40%;">
+        <strong>التاريخ</strong>
+        <p style="margin-top: 30px;">........ / ........ / .............. هـ</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    let claimsList = [];
+
+    function toggleForeignerFields() {
+      const isChecked = document.getElementById('f_is_foreigner').checked;
+      document.getElementById('foreignerFields').style.display = isChecked ? 'block' : 'none';
+    }
+
+    function addClaim() {
+      const requiredIds = ['f_name', 'f_id', 'f_case_number', 'f_employer', 'f_cr', 'f_start_date', 'f_end_date', 'f_basic_salary', 'f_delayed', 'f_vacation', 'f_eos', 'f_overtime', 'f_commission'];
+      let isValid = true;
+      for (const id of requiredIds) {
+        const el = document.getElementById(id);
+        if (!el.value) {
+          el.style.borderColor = 'red';
+          isValid = false;
+        } else {
+          el.style.borderColor = '';
+        }
+      }
+      
+      if (!isValid) {
+        alert("الرجاء تعبئة جميع الحقول الإلزامية قبل الإضافة.");
+        return;
+      }
+
+      const claim = {
+        name: document.getElementById('f_name').value,
+        id: document.getElementById('f_id').value,
+        poa: document.getElementById('f_poa').value || '-',
+        employer: document.getElementById('f_employer').value,
+        cr: document.getElementById('f_cr').value,
+        caseNumber: document.getElementById('f_case_number').value,
+        startDate: document.getElementById('f_start_date').value,
+        endDate: document.getElementById('f_end_date').value,
+        reason: document.getElementById('f_reason').value || '-',
+        basicSalary: document.getElementById('f_basic_salary').value,
+        actualSalary: document.getElementById('f_actual_salary').value || '-',
+        delayed: document.getElementById('f_delayed').value,
+        vacation: document.getElementById('f_vacation').value,
+        eos: document.getElementById('f_eos').value,
+        overtime: document.getElementById('f_overtime').value,
+        commission: document.getElementById('f_commission').value,
+        isForeigner: document.getElementById('f_is_foreigner').checked,
+        jobTitle: document.getElementById('f_job_title').value || '-',
+        sponsorship: document.getElementById('f_sponsorship').value || '-',
+        iqama: document.getElementById('f_iqama').value || '-',
+        ticket: document.getElementById('f_ticket').value || '-'
+      };
+
+      claimsList.push(claim);
+      document.getElementById('laborForm').reset();
+      toggleForeignerFields();
+      renderClaimsList();
+    }
+
+    function deleteClaim(index) {
+      claimsList.splice(index, 1);
+      renderClaimsList();
+    }
+
+    function renderClaimsList() {
+      const section = document.getElementById('claimsListSection');
+      const tbody = document.getElementById('claimsListBody');
+      
+      if (claimsList.length === 0) {
+        section.style.display = 'none';
+        return;
+      }
+      
+      section.style.display = 'block';
+      tbody.innerHTML = claimsList.map((c, i) => `
+        <tr style="border-bottom: 1px solid var(--slate-700);">
+          <td style="padding: 10px;">${c.name}</td>
+          <td style="padding: 10px;">${c.id}</td>
+          <td style="padding: 10px;">${c.caseNumber}</td>
+          <td style="padding: 10px;">
+            <button class="btn" style="background-color: var(--rose-500); color: white; padding: 4px 10px; font-size: 0.8rem;" onclick="deleteClaim(${i})"><i class="fa-solid fa-trash-can"></i> حذف</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function generateAndPrintAll() {
+      if (claimsList.length === 0) return;
+      
+      const tbody = document.getElementById('printTableBody');
+      tbody.innerHTML = claimsList.map((c, i) => {
+        let foreignerData = '-';
+        if (c.isForeigner) {
+          foreignerData = `مهنة: ${c.jobTitle}<br>كفالة: ${c.sponsorship}<br>إقامة: ${c.iqama}<br>تذكرة: ${c.ticket}`;
+        }
+        
+        return `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${c.name}</td>
+            <td>${c.id}</td>
+            <td>${c.poa}</td>
+            <td>${c.employer}<br>سجل: ${c.cr}</td>
+            <td>${c.caseNumber}</td>
+            <td>من: ${c.startDate}<br>إلى: ${c.endDate}</td>
+            <td>أساسي: ${c.basicSalary}<br>فعلي: ${c.actualSalary}</td>
+            <td>${c.delayed}</td>
+            <td>${c.vacation}</td>
+            <td>${c.eos}</td>
+            <td>إضافي: ${c.overtime}<br>نسبة: ${c.commission}%</td>
+            <td style="font-size: 9px;">${foreignerData}</td>
+            <td>${c.reason}</td>
+          </tr>
+        `;
+      }).join('');
+
+      window.print();
+    }
+  </script>
+</body>
+</html>
