@@ -2,7 +2,7 @@
    المرجع النظامي — Main App Logic
    ============================================ */
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = '/api';
 
 // ── Navigation ──
 document.addEventListener('DOMContentLoaded', () => {
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       if (!browseLaw && !quizLaw) return;
 
-      const resp = await fetch('http://localhost:5000/api/laws');
+      const resp = await fetch('/api/laws');
       if (!resp.ok) return;
       const data = await resp.json();
       
