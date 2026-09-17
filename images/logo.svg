@@ -1,0 +1,43 @@
+<svg width="220" height="220" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="HadiFolio - letter Ha">
+  <defs>
+    <linearGradient id="baseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6E7141"/>
+      <stop offset="100%" stop-color="#454726"/>
+    </linearGradient>
+    <radialGradient id="sealGrad" cx="35%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#F1E3C6"/>
+      <stop offset="100%" stop-color="#8A5A2E"/>
+    </radialGradient>
+  </defs>
+
+  <!-- folder tab -->
+  <rect x="128" y="4" width="66" height="34" rx="10" fill="#8A5A2E"/>
+
+  <!-- base document/folder body (olive) -->
+  <rect x="14" y="26" width="192" height="180" rx="38" fill="url(#baseGrad)"/>
+
+  <!-- letter Ha (هـ) - precise traced outline, beige -->
+  <g transform="translate(-0.90,5.48) scale(0.2330)">
+    <g transform="translate(0,1000) scale(0.1,-0.1)" fill="#F1E3C6">
+      <path d="M4995 7644 c-22 -2 -96 -9 -165 -14 -237 -21 -473 -61 -700 -120
+-150 -40 -340 -99 -340 -107 0 -13 183 -618 189 -625 3 -4 53 9 111 28 223 74
+489 129 755 155 73 7 260 13 425 14 245 0 312 -3 395 -19 278 -51 497 -158
+665 -326 168 -168 284 -399 339 -675 35 -179 41 -302 41 -902 l0 -583 -390 0
+-390 0 0 463 c0 256 -5 500 -10 547 -55 450 -309 789 -697 929 -152 55 -267
+74 -463 75 -331 0 -577 -70 -830 -238 -262 -175 -449 -437 -516 -725 -39 -165
+-34 -451 11 -628 31 -120 106 -277 174 -360 l51 -63 -833 -2 -832 -3 0 -330 0
+-330 2783 -3 2782 -2 0 857 c0 472 -5 948 -10 1058 -18 386 -79 661 -205 923
+-274 571 -756 883 -1526 988 -108 15 -707 28 -814 18z m-151 -1884 c149 -56
+221 -170 246 -389 5 -47 10 -269 10 -493 l0 -408 -113 0 c-353 0 -549 94 -658
+315 -47 96 -66 167 -80 300 -28 250 27 459 156 590 52 53 98 80 175 102 60 17
+194 9 264 -17z"/>
+    </g>
+  </g>
+
+  <!-- accent ribbon (brown) -->
+  <rect x="38" y="182" width="144" height="7" rx="3.5" fill="#8A5A2E"/>
+
+  <!-- seal dot accent (brown) -->
+  <circle cx="182" cy="184" r="13" fill="url(#sealGrad)" stroke="#4A2F18" stroke-width="3"/>
+
+</svg>
