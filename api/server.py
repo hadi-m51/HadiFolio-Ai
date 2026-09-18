@@ -37,7 +37,18 @@ print("[*] Using Hugging Face Inference API for embeddings (RAM Optimization)...
 # embed_model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
 # print("[OK] Embedding model loaded")
 
+try:
+    from sentence_transformers import SentenceTransformer
+    print("[*] Local SentenceTransformer found! Using local model for embedding queries.")
+    local_embed_model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+except ImportError:
+    print("[*] SentenceTransformer not installed. Using HuggingFace API for embeddings (Render Mode).")
+    local_embed_model = None
+
 def encode_query(query: str):
+    if local_embed_model:
+        return local_embed_model.encode([query])[0]
+        
     api_url = "https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
     try:
         response = requests.post(api_url, json={"inputs": [query]}, timeout=15)
@@ -98,7 +109,7 @@ else:
     np.save(embeddings_path, article_embeddings)
     print("[OK] Dummy embeddings computed and saved.")
 
-GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key={GEMINI_API_KEY}"
+GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
 
 # ── Helper Functions ──
 
@@ -106,6 +117,11 @@ def search_local(query: str, top_k: int = 5, law_filter: str = None) -> list:
     """Search local articles using cosine similarity."""
     query_vec = encode_query(query)
     
+    # Safeguard: If embedding failed (e.g., HF API timeout + no local model)
+    if np.all(query_vec == 0):
+        print("[ERROR] query_vec is all zeros! Search failed.")
+        return []
+        
     # Cosine similarity calculation
     scores = np.dot(article_embeddings, query_vec) / (np.linalg.norm(article_embeddings, axis=1) * np.linalg.norm(query_vec) + 1e-9)
     
@@ -126,45 +142,112 @@ def search_local(query: str, top_k: int = 5, law_filter: str = None) -> list:
     return matches
 
 
-def call_gemini(prompt: str) -> str:
-    """Call Gemini API for AI-powered analysis."""
-    headers = {"Content-Type": "application/json"}
-    payload = {
-        "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {
-            "temperature": 0.3,
-            "maxOutputTokens": 4096,
-            "topP": 0.8,
-        },
-        "safetySettings": [
-            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
-            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
-            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
-            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
-        ]
-    }
+import google.generativeai as genai
+
+# Initialize Gemini SDK globally
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
+    
+def call_gemini(prompt: str, context: str = "") -> str:
+    """Call Gemini API for AI-powered analysis using the official SDK."""
     try:
-        resp = requests.post(GEMINI_URL, headers=headers, json=payload, timeout=30)
-        resp.raise_for_status()
-        data = resp.json()
-        return data["candidates"][0]["content"]["parts"][0]["text"]
+        # Use gemini-3.6-flash as supported by the user's API key
+        model = genai.GenerativeModel('gemini-3.6-flash')
+        
+        # Configure generation parameters
+        generation_config = genai.types.GenerationConfig(
+            temperature=0.3,
+            max_output_tokens=4096,
+            top_p=0.8,
+        )
+        
+        # Call the model
+        response = model.generate_content(
+            prompt,
+            generation_config=generation_config
+        )
+        
+        if response.text:
+            return response.text
+        else:
+            print("[ERROR] Gemini response empty or blocked.")
+            return f"عذراً، لم يقم الذكاء الاصطناعي بإرجاع إجابة صالحة. إليك المواد النظامية المطابقة لسؤالك مباشرة:\n\n{context}"
+            
     except Exception as e:
-        print(f"[ERROR] Gemini API Error: {e}")
-        return f"حدث خطأ أثناء الاتصال بالذكاء الاصطناعي: {str(e)}"
+        print(f"[ERROR] Gemini SDK Error: {e}")
+        return f"نظراً للضغط الحالي على خوادم الذكاء الاصطناعي، إليك المواد النظامية المطابقة لسؤالك مباشرة:\n\n{context}"
 
 
 
 # ── API Routes ──
+from datetime import datetime, timezone
+
+def verify_access(req):
+    auth_header = req.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return False, "غير مصرح (Token مفقود)"
+    
+    token = auth_header.split(' ')[1]
+    data = req.get_json() or {}
+    uid = data.get('uid')
+    
+    if not uid:
+        return False, "معرف المستخدم مفقود (UID)"
+        
+    url = f"https://firestore.googleapis.com/v1/projects/tutorial-55cc6/databases/(default)/documents/users/{uid}"
+    headers = {"Authorization": f"Bearer {token}"}
+    
+    try:
+        resp = requests.get(url, headers=headers, timeout=5)
+        if resp.status_code != 200:
+            return False, "رمز الأمان غير صالح أو منتهي الصلاحية"
+            
+        doc = resp.json()
+        fields = doc.get('fields', {})
+        
+        status = fields.get('status', {}).get('stringValue', '')
+        role = fields.get('role', {}).get('stringValue', '')
+        expiry_str = fields.get('subscription_expiry', {}).get('stringValue', '')
+        
+        if role == 'admin':
+            return True, ""
+            
+        if status != 'approved':
+            return False, "حسابك غير مفعل، يرجى التواصل مع الإدارة"
+            
+        if not expiry_str:
+            return False, "ليس لديك باقة نشطة"
+            
+        try:
+            if expiry_str.endswith('Z'):
+                expiry_str = expiry_str[:-1] + '+00:00'
+            expiry_date = datetime.fromisoformat(expiry_str)
+            now_utc = datetime.now(timezone.utc)
+            if expiry_date < now_utc:
+                return False, "باقة اشتراكك منتهية"
+        except Exception as e:
+            return False, "تاريخ الصلاحية غير صالح"
+            
+        return True, ""
+    except Exception as e:
+        return False, "حدث خطأ في جدار الحماية"
 
 @app.route('/api/query', methods=['POST'])
 def api_query():
     """Main consultation endpoint: search + Gemini analysis."""
+    is_valid, err_msg = verify_access(request)
+    if not is_valid:
+        return jsonify({"error": err_msg}), 403
+
     data = request.json
     question = data.get('question', '').strip()
     if not question:
         return jsonify({"error": "يرجى إدخال سؤال"}), 400
 
     matches = search_local(question, top_k=5)
+    print(f"[DEBUG] query: {question}")
+    for idx, m in enumerate(matches):
+        print(f"[DEBUG] match {idx}: {m['law_title']} - score: {m['score']}")
     if not matches:
         return jsonify({
             "answer": "لم أجد مواد نظامية ذات صلة بسؤالك. يرجى إعادة صياغة السؤال.",
@@ -190,7 +273,7 @@ def api_query():
 
 أجب بشكل أكاديمي منظم مع الاستشهاد بالمواد:"""
 
-    answer = call_gemini(prompt)
+    answer = call_gemini(prompt, context)
     sources = [{"source": m["source"], "law_title": m["law_title"], "score": m["score"]} for m in matches]
 
     return jsonify({"answer": answer, "sources": sources})
@@ -199,6 +282,10 @@ def api_query():
 @app.route('/api/court', methods=['POST'])
 def api_court():
     """Determine the competent court based on case description."""
+    is_valid, err_msg = verify_access(request)
+    if not is_valid:
+        return jsonify({"error": err_msg}), 403
+
     data = request.json
     description = data.get('description', '').strip()
     if not description:
@@ -221,13 +308,17 @@ def api_court():
 
 أجب بشكل منظم:"""
 
-    answer = call_gemini(prompt)
+    answer = call_gemini(prompt, context)
     return jsonify({"answer": answer, "sources": [m["law_title"] for m in matches]})
 
 
 @app.route('/api/deadlines', methods=['POST'])
 def api_deadlines():
     """Search for legal deadlines/periods."""
+    is_valid, err_msg = verify_access(request)
+    if not is_valid:
+        return jsonify({"error": err_msg}), 403
+
     data = request.json
     procedure = data.get('procedure', '').strip()
     if not procedure:
@@ -251,13 +342,17 @@ def api_deadlines():
 
 أجب بشكل منظم وواضح:"""
 
-    answer = call_gemini(prompt)
+    answer = call_gemini(prompt, context)
     return jsonify({"answer": answer, "sources": [m["law_title"] for m in matches]})
 
 
 @app.route('/api/browse', methods=['POST'])
 def api_browse():
     """Browse a specific law's content."""
+    is_valid, err_msg = verify_access(request)
+    if not is_valid:
+        return jsonify({"error": err_msg}), 403
+
     data = request.json
     law_name = data.get('law', '').strip()
     search_term = data.get('search', '').strip()
@@ -322,6 +417,10 @@ def api_custom_data():
 @app.route('/api/classify', methods=['POST'])
 def api_classify():
     """Classify a case type based on facts."""
+    is_valid, err_msg = verify_access(request)
+    if not is_valid:
+        return jsonify({"error": err_msg}), 403
+
     data = request.json
     facts = data.get('facts', '').strip()
     if not facts:
@@ -345,13 +444,17 @@ def api_classify():
 
 أجب بشكل منظم:"""
 
-    answer = call_gemini(prompt)
+    answer = call_gemini(prompt, context)
     return jsonify({"answer": answer, "sources": [m["law_title"] for m in matches]})
 
 
 @app.route('/api/compare', methods=['POST'])
 def api_compare():
     """Compare articles between two laws."""
+    is_valid, err_msg = verify_access(request)
+    if not is_valid:
+        return jsonify({"error": err_msg}), 403
+
     data = request.json
     topic = data.get('topic', '').strip()
     law1 = data.get('law1', '').strip()
@@ -382,7 +485,8 @@ def api_compare():
 
 أجب بشكل منظم في جدول مقارنة:"""
 
-    answer = call_gemini(prompt)
+    combined_context = context1 + "\n\n" + context2
+    answer = call_gemini(prompt, combined_context)
     return jsonify({
         "answer": answer,
         "sources_law1": [m["law_title"] for m in matches1],
@@ -393,6 +497,10 @@ def api_compare():
 @app.route('/api/memo', methods=['POST'])
 def api_memo():
     """Generate a legal memo/brief structure."""
+    is_valid, err_msg = verify_access(request)
+    if not is_valid:
+        return jsonify({"error": err_msg}), 403
+
     data = request.json
     memo_type = data.get('type', '').strip()
     facts = data.get('facts', '').strip()
@@ -426,13 +534,17 @@ def api_memo():
 
 أنشئ المذكرة بتنسيق احترافي مع الاستشهاد بالمواد النظامية:"""
 
-    answer = call_gemini(prompt)
+    answer = call_gemini(prompt, context)
     return jsonify({"answer": answer, "sources": [m["law_title"] for m in matches]})
 
 
 @app.route('/api/quiz', methods=['POST'])
 def api_quiz():
     """Generate quiz questions about a specific law."""
+    is_valid, err_msg = verify_access(request)
+    if not is_valid:
+        return jsonify({"error": err_msg}), 403
+
     data = request.json
     law_name = data.get('law', '').strip()
     difficulty = data.get('difficulty', 'medium')
@@ -471,7 +583,7 @@ def api_quiz():
 
 أجب فقط بـ JSON بدون أي نص إضافي:"""
 
-    answer = call_gemini(prompt)
+    answer = call_gemini(prompt, context)
 
     # Try to parse JSON from Gemini response
     try:
@@ -494,6 +606,10 @@ def api_quiz():
 @app.route('/api/glossary', methods=['POST'])
 def api_glossary():
     """Explain a legal term with references."""
+    is_valid, err_msg = verify_access(request)
+    if not is_valid:
+        return jsonify({"error": err_msg}), 403
+
     data = request.json
     term = data.get('term', '').strip()
     if not term:
@@ -518,7 +634,7 @@ def api_glossary():
 
 أجب بشكل أكاديمي منظم:"""
 
-    answer = call_gemini(prompt)
+    answer = call_gemini(prompt, context)
     return jsonify({"answer": answer, "sources": [m["law_title"] for m in matches]})
 
 
