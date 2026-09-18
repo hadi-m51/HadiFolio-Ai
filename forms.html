@@ -7,28 +7,29 @@
   <meta name="description" content="نماذج الدعاوى الجاهزة للطباعة، قم بتعبئة بياناتك واطبع نموذج دعوى عمالية متكامل.">
   <link rel="stylesheet" href="css/style.css">
   <link rel="icon" href="images/logo.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="images/logo.svg">
+  
   <style>
-    /* Print specific styles for the generated PDF */
+    @media screen {
+      #printArea {
+        display: none;
+      }
+    }
     @media print {
       @page {
         size: landscape;
         margin: 10mm;
       }
-      body * {
-        visibility: hidden;
-      }
-      #printArea, #printArea * {
-        visibility: visible;
-      }
-      #printArea {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        font-family: 'Arial', sans-serif;
+      body {
         background: #fff;
         color: #000;
+      }
+      body > *:not(#printArea) {
+        display: none !important;
+      }
+      #printArea {
+        display: block !important;
+        width: 100%;
+        font-family: 'Arial', sans-serif;
         direction: rtl;
       }
       .no-print {
@@ -50,19 +51,16 @@
         margin-bottom: 20px;
       }
       .print-table th, .print-table td {
-        border: 1px solid #000;
+        border: 1px solid #000 !important;
         padding: 4px;
         text-align: center;
         font-size: 10px;
       }
       .print-table th {
-        background-color: #f2f2f2 !important; /* using !important for print to force background */
+        background-color: #f2f2f2 !important;
         -webkit-print-color-adjust: exact; 
+        print-color-adjust: exact;
         font-weight: bold;
-      }
-      /* Hide standard page elements */
-      .navbar, .footer, .bg-pattern, .page-header {
-        display: none !important;
       }
     }
     
@@ -90,11 +88,15 @@
       color: var(--gold-400);
       font-weight: 600;
     }
-    #printArea {
-      display: none; /* hidden on screen, visible on print */
-    }
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="HadiFolio-Ai">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0f172a">
 </head>
 <body>
   <div class="bg-pattern no-print"></div>
@@ -327,7 +329,7 @@
     </div>
   </div>
 
-  <script src="js/app.js"></script>
+  <script src="js/app.js"></script>`r`n  <script type="module" src="js/firebase-init.js"></script>
   <script>
     let claimsList = [];
 
@@ -446,3 +448,4 @@
   </script>
 </body>
 </html>
+
