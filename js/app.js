@@ -2,7 +2,9 @@
    المرجع النظامي — Main App Logic
    ============================================ */
 
-const API_BASE = '/api';
+// التعرف التلقائي على بيئة التشغيل: استخدام مسار محلي للتطوير، ومسار نسبي للاستضافة
+const isLocalLiveServer = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') && window.location.port !== '7860';
+const API_BASE = isLocalLiveServer ? 'http://127.0.0.1:7860/api' : '/api';
 
 // ── Navigation ──
 document.addEventListener('DOMContentLoaded', () => {
@@ -47,20 +49,20 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const browseLaw = document.getElementById('browseLaw');
       const quizLaw = document.getElementById('quizLaw');
-      
+
       if (!browseLaw && !quizLaw) return;
 
       const resp = await fetch('/api/laws');
       if (!resp.ok) return;
       const data = await resp.json();
-      
+
       if (data.laws && data.laws.length > 0) {
         if (browseLaw) {
-          browseLaw.innerHTML = '<option value="">جميع الأنظمة</option>' + 
+          browseLaw.innerHTML = '<option value="">جميع الأنظمة</option>' +
             data.laws.map(law => `<option value="${law}">${law}</option>`).join('');
         }
         if (quizLaw) {
-          quizLaw.innerHTML = '<option value="">أسئلة شاملة (جميع الأنظمة)</option>' + 
+          quizLaw.innerHTML = '<option value="">أسئلة شاملة (جميع الأنظمة)</option>' +
             data.laws.map(law => `<option value="${law}">${law}</option>`).join('');
         }
       }
@@ -74,9 +76,18 @@ document.addEventListener('DOMContentLoaded', () => {
 // ── API Helper ──
 async function apiCall(endpoint, data) {
   try {
+    let headers = { 'Content-Type': 'application/json' };
+    
+    // Add Firebase Auth Token if available
+    if (window.fbAuth && window.fbAuth.currentUser) {
+      const token = await window.fbAuth.currentUser.getIdToken();
+      headers['Authorization'] = `Bearer ${token}`;
+      data.uid = window.fbAuth.currentUser.uid;
+    }
+
     const resp = await fetch(`${API_BASE}${endpoint}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: headers,
       body: JSON.stringify(data)
     });
     if (!resp.ok) {
@@ -104,7 +115,7 @@ function formatAnswer(text) {
   html = html.replace(/\n/g, '<br>');
   // Clean multiple <br>
   html = html.replace(/(<br>){3,}/g, '<br><br>');
-  
+
   // Add disclaimer
   const disclaimer = `
     <div style="margin-top: 24px; padding: 12px; border-top: 1px dashed var(--slate-600); font-size: 0.8rem; color: var(--slate-400);">
@@ -268,7 +279,7 @@ const Browse = {
   init() {
     const form = document.getElementById('browseForm');
     if (!form) return;
-    
+
     // Add "Show More" button container after results
     const container = document.getElementById('browseResult').parentElement;
     const moreBtnContainer = document.createElement('div');
@@ -291,7 +302,7 @@ const Browse = {
   async fetchResults(isNewSearch = false) {
     const resultEl = document.getElementById('browseResult');
     const moreContainer = document.getElementById('browseMoreContainer');
-    
+
     if (isNewSearch) {
       resultEl.innerHTML = '<div class="flex-center"><div class="loading-spinner"></div><span style="margin-right:12px">جاري التصفح...</span></div>';
       moreContainer.classList.add('hidden');
@@ -300,14 +311,14 @@ const Browse = {
     }
 
     try {
-      const data = await apiCall('/browse', { 
-        law: this.currentLaw, 
+      const data = await apiCall('/browse', {
+        law: this.currentLaw,
         search: this.currentSearch,
         page: this.currentPage
       });
-      
+
       if (isNewSearch) resultEl.innerHTML = ''; // clear loading state
-      
+
       if (!data.results || data.results.length === 0) {
         if (isNewSearch) {
           resultEl.innerHTML = '<div class="empty-state"><div class="empty-icon"><i class="fa-solid fa-magnifying-glass"></i></div><h3>لم يتم العثور على نتائج</h3></div>';
@@ -315,7 +326,7 @@ const Browse = {
         moreContainer.classList.add('hidden');
         return;
       }
-      
+
       const newHtml = data.results.map((r, i) => `
         <div class="result-card" style="animation-delay:${i * 0.05}s">
           <div class="result-header">
@@ -327,13 +338,13 @@ const Browse = {
           </div>
           <div class="result-text">${r.text}</div>
         </div>`).join('');
-        
+
       if (isNewSearch) {
         resultEl.innerHTML = newHtml;
       } else {
         resultEl.innerHTML += newHtml;
       }
-      
+
       if (data.has_more) {
         moreContainer.classList.remove('hidden');
         moreContainer.innerHTML = '<button class="btn btn-secondary" onclick="Browse.loadMore()">عرض المزيد ↓</button>';
@@ -349,7 +360,7 @@ const Browse = {
       }
     }
   },
-  
+
   loadMore() {
     this.currentPage++;
     this.fetchResults(false);
@@ -563,9 +574,9 @@ const Quiz = {
         <p style="color:var(--white-70)">${q.explanation || ''}</p>
         <div style="margin-top:16px;text-align:center">
           ${this.currentIndex < this.questions.length - 1
-            ? `<button class="btn btn-primary" onclick="Quiz.next()">السؤال التالي →</button>`
-            : `<button class="btn btn-primary" onclick="Quiz.showResults()">عرض النتائج <i class="fa-solid fa-champagne-glasses"></i></button>`
-          }
+        ? `<button class="btn btn-primary" onclick="Quiz.next()">السؤال التالي →</button>`
+        : `<button class="btn btn-primary" onclick="Quiz.showResults()">عرض النتائج <i class="fa-solid fa-champagne-glasses"></i></button>`
+      }
         </div>
       </div>`;
   },
